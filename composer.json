@@ -1,0 +1,13 @@
+{
+    "name": "james481/micro-cms",
+    "description": "Micro cms / static site MVC framework",
+    "authors": [
+        {
+            "name": "James C Watts",
+            "email": "jamescwatts@gmail.com"
+        }
+    ],
+    "require": {
+
+    }
+}
