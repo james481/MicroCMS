@@ -7,7 +7,14 @@
             "email": "jamescwatts@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {"MicroCMS\\": "src/MicroCMS"}
+    },
     "require": {
-
+        "symfony/http-foundation": "2.5.*@dev",
+        "symfony/routing": "2.5.*@dev",
+        "symfony/dependency-injection": "2.5.*@dev",
+        "symfony/config": "2.5.*@dev",
+        "symfony/yaml": "2.5.*@dev"
     }
 }
