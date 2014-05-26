@@ -13,10 +13,17 @@ namespace MicroCMS\Kernel;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 abstract class AbstractKernel
 {
+    /**
+     * Is the application booted and ready to handle request
+     * @param bool $booted
+     */
+    protected $booted = false;
+
     /**
      * The DI Container
      * @param Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -50,18 +57,32 @@ abstract class AbstractKernel
     public function __construct($env = 'prod')
     {
         $this->env = $env;
-        $this->bootstrap();
     }
 
     /**
-     * getEnvironment
-     * Get the application environment
+     * bootstrap
+     * Bootstrap the application and pass the request
+     * to handle.
      *
-     * @return string $env
+     * @return void
      */
-    public function getEnvironment()
+    public function bootstrap()
     {
-        return($this->env);
+        if (!$this->booted) {
+            $this->container = $this->buildContainer();
+            $this->booted = true;
+        }
+    }
+
+    /**
+     * getBooted
+     * Is the application booted?
+     *
+     * @return bool $booted
+     */
+    public function getBooted()
+    {
+        return($this->booted);
     }
 
     /**
@@ -72,41 +93,7 @@ abstract class AbstractKernel
      */
     public function getRootDir()
     {
-        if (null === $this->rootDir) {
-            $reflector = new \ReflectionClass($this);
-            $rootDir = dirname($reflector->getFileName());
-            $this->rootDir = str_replace('src/MicroCMS/Kernel', '', $rootDir);
-        }
-
         return($this->rootDir);
-    }
-
-    /**
-     * bootstrap
-     * Bootstrap the application and pass the request
-     * to handle.
-     *
-     * @return void
-     */
-    protected function bootstrap()
-    {
-        $this->request = Request::createFromGlobals();
-        $this->container = $this->buildContainer();
-        $response = $this->handle($this->request);
-        $response->send();
-        $this->terminate();
-    }
-
-    /**
-     * buildContainer
-     * Build the DI container, extended by children kernels.
-     *
-     * @return Symfony\Component\DependencyInjection\ContainerInterface $container
-     */
-    protected function buildContainer()
-    {
-        $container = new ContainerBuilder();
-        return($container);
     }
 
     /**
@@ -117,10 +104,27 @@ abstract class AbstractKernel
      * @param Symfony\Component\HttpFoundation\Request $request
      * @return Symfony\Component\HttpFoundation\Response $response
      */
-    protected function handle(Request $request)
+    public function handle(Request $request)
     {
+        if (!$this->booted) {
+            $this->bootstrap();
+        }
+
+        $this->request = $request;
         $response = new Response();
         return($response);
+    }
+
+    /**
+     * setRootDir
+     * Sets the application root directory
+     * (This is typically unneeded except for tests)
+     *
+     * @return self $this
+     */
+    public function setRootDir($rootDir)
+    {
+        $this->rootDir = $rootDir;
     }
 
     /**
@@ -129,7 +133,49 @@ abstract class AbstractKernel
      *
      * @return void
      */
-    protected function terminate()
+    public function terminate()
     {
+    }
+
+    /**
+     * buildContainer
+     * Build the DI container, extended by children kernels.
+     *
+     * @return Symfony\Component\DependencyInjection\ContainerInterface $container
+     */
+    protected function buildContainer()
+    {
+        $container = $this->getContainerBuilder();
+        $container->set('kernel', $this);
+        return($container);
+    }
+
+    /**
+     * getContainerBuilder
+     * Get the Container Builder Class
+     *
+     * @return Symfony\Component\DependencyInjection\ContainerBuilder $container
+     */
+    protected function getContainerBuilder()
+    {
+        $kernel_params = new ParameterBag($this->getKernelParams());
+        $container = new ContainerBuilder($kernel_params);
+
+        return($container);
+    }
+
+    /**
+     * getKernelParams
+     *
+     * @return array $kernel_params
+     */
+    protected function getKernelParams()
+    {
+        $kernel_params = array(
+            'kernel.root_dir' => $this->getRootDir(),
+            'kernel.env' => $this->env,
+        );
+
+        return($kernel_params);
     }
 }

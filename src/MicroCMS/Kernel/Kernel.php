@@ -14,19 +14,37 @@ namespace MicroCMS\Kernel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use MicroCMS\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\FileLocator;
 
 class Kernel Extends AbstractKernel
 {
     /**
-     * buildContainer
-     * Build the DI container
+     * getConfigDir
+     * Get the global app config directory
      *
-     * @return Symfony\Component\DependencyInjection\ContainerInterface $container
+     * @return string $configDir
      */
-    protected function buildContainer()
+    public function getConfigDir()
     {
-        $container = new ContainerBuilder();
-        return($container);
+        $configDir = $this->getRootDir() . '/app/config/' . $this->env . '/';
+        return($configDir);
+    }
+
+    /**
+     * getRootDir
+     * Gets the application root directory
+     *
+     * @return string $rootDir
+     */
+    public function getRootDir()
+    {
+        if (null === $this->rootDir) {
+            $reflector = new \ReflectionClass($this);
+            $rootDir = dirname($reflector->getFileName());
+            $this->rootDir = str_replace('src/MicroCMS/Kernel', '', $rootDir);
+        }
+
+        return($this->rootDir);
     }
 
     /**
@@ -36,9 +54,31 @@ class Kernel Extends AbstractKernel
      * @param Symfony\Component\HttpFoundation\Request $request
      * @return Symfony\Component\HttpFoundation\Response $response
      */
-    protected function handle(Request $request)
+    public function handle(Request $request)
     {
-        $response = new Response($this->getRootDir() . "\n");
+        if (!$this->booted) {
+            $this->bootstrap();
+        }
+
+        $this->request = $request;
+        $response = new Response(print_r($this->container, true));
         return($response);
+    }
+
+    /**
+     * buildContainer
+     * Build the MicroCMS specific DI container
+     *
+     * @return Symfony\Component\DependencyInjection\ContainerInterface $container
+     */
+    protected function buildContainer()
+    {
+        $builder = new ContainerBuilder($this->getContainerBuilder());
+        $builder->setConfigLocator(new FileLocator($this->getConfigDir()));
+        $container = $builder->prepareContainer();
+        $container->set('kernel', $this);
+        $container->compile();
+
+        return($container);
     }
 }
