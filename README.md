@@ -1,4 +1,5 @@
 MicroCMS - Micro framework for small sites
+==========================================
 
 This framework is designed to be lightweight and easy to use, but allow for later transition to heavier frameworks (Symfony) if needed. It provides a basic kernel with logging and twig rendering, and a very simple default routing scheme.
 
@@ -12,7 +13,7 @@ About
 Author
 ------
 
-James Watts - <jamescwatts[at]gmail[dot]com>
+James Watts - <jamescwatts@gmail.com>
 
 License
 -------
