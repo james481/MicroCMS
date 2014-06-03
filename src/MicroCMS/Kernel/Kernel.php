@@ -18,6 +18,8 @@ use Symfony\Component\Config\FileLocator;
 
 class Kernel Extends AbstractKernel
 {
+    const VERSION = '0.0.1';
+
     /**
      * getConfigDir
      * Get the global app config directory
@@ -26,7 +28,7 @@ class Kernel Extends AbstractKernel
      */
     public function getConfigDir()
     {
-        $configDir = $this->getRootDir() . '/app/config/' . $this->env . '/';
+        $configDir = $this->getRootDir() . '/app/config/';
         return($configDir);
     }
 
@@ -73,8 +75,14 @@ class Kernel Extends AbstractKernel
      */
     protected function buildContainer()
     {
+
+        // Get MicroCMS container builder
         $builder = new ContainerBuilder($this->getContainerBuilder());
+
+        // Set file loader for config files
         $builder->setConfigLocator(new FileLocator($this->getConfigDir()));
+
+        // Finish container
         $container = $builder->prepareContainer();
         $container->set('kernel', $this);
         $container->compile();

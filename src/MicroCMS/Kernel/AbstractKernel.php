@@ -61,8 +61,7 @@ abstract class AbstractKernel
 
     /**
      * bootstrap
-     * Bootstrap the application and pass the request
-     * to handle.
+     * Bootstrap the application
      *
      * @return void
      */

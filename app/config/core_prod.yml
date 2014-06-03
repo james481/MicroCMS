@@ -1,0 +1,11 @@
+parameters:
+    log_dir: %kernel.root_dir%/app/logs/
+    template_dir: %kernel.root_dir%/app/templates/
+    service_factory: MicroCMS\DependencyInjection\ServiceFactory
+
+services:
+    logger:
+       class: Monolog\Logger
+       factory_class: %service_factory%
+       factory_method: buildLogger
+       arguments: [@service_container]
