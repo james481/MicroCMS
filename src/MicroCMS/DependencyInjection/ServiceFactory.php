@@ -6,6 +6,11 @@
 * Container Core Service Factory Class
 *
 * @author James Watts <jamescwatts[at]gmail[dot]com>
+* @copyright (c) 2014 James Watts
+* @license MIT
+*
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 *
 */
 
@@ -26,7 +31,7 @@ class ServiceFactory
     public static function buildLogger(ContainerInterface $container)
     {
         $factory = new MonologFactory(
-            $container->getParameter('log_dir'),
+            $container->getParameter('kernel.log_dir'),
             $container->getParameter('kernel.env')
         );
 
