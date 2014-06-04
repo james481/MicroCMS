@@ -18,8 +18,9 @@ namespace MicroCMS\Kernel;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use MicroCMS\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use MicroCMS\DependencyInjection\ContainerBuilder;
+use MicroCMS\Routing\RouterBuilder;
 
 class Kernel Extends AbstractKernel
 {
@@ -63,11 +64,12 @@ class Kernel Extends AbstractKernel
      */
     public function handle(Request $request)
     {
+        $this->request = $request;
+
         if (!$this->booted) {
             $this->bootstrap();
         }
 
-        $this->request = $request;
         $response = new Response(print_r($this->container, true));
         return($response);
     }
@@ -80,18 +82,41 @@ class Kernel Extends AbstractKernel
      */
     protected function buildContainer()
     {
-
         // Get MicroCMS container builder
         $builder = new ContainerBuilder($this->getContainerBuilder());
 
         // Set file loader for config files
-        $builder->setConfigLocator(new FileLocator($this->getConfigDir()));
+        $config_locator = new FileLocator($this->getConfigDir());
+        $builder->setConfigLocator($config_locator);
 
         // Finish container
         $container = $builder->prepareContainer();
         $container->set('kernel', $this);
+        $container->set('kernel.config_locator', $config_locator);
         $container->compile();
 
         return($container);
+    }
+
+    /**
+     * buildRouter
+     * Build the router for matching requests to controllers,
+     * extended by children kernels.
+     *
+     * @return Symfony\Component\Router\Matcher\RequestMatcherInterface $router
+     */
+    protected function buildRouter()
+    {
+        // Get the MicroCMS router builder, and build the router.
+
+        $builder = new RouterBuilder(
+            $this->request,
+            $this->container->get('kernel.config_locator'),
+            $this->container->getParameter('kernel.template_dir')
+        );
+
+        $router = $builder->prepareRouter();
+
+        return($router);
     }
 }

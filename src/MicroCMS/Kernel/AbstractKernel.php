@@ -20,6 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouteCollection;
 
 abstract class AbstractKernel
 {
@@ -54,6 +57,12 @@ abstract class AbstractKernel
     protected $rootDir;
 
     /**
+     * The request route matcher.
+     * @param Symfony\Component\Router\Matcher\RequestMatcherInterface $router
+     */
+    protected $router;
+
+    /**
      * Constructor
      *
      * @param string $env Application Environment
@@ -74,6 +83,7 @@ abstract class AbstractKernel
     {
         if (!$this->booted) {
             $this->container = $this->buildContainer();
+            $this->router = $this->buildRouter();
             $this->booted = true;
         }
     }
@@ -152,6 +162,23 @@ abstract class AbstractKernel
         $container = $this->getContainerBuilder();
         $container->set('kernel', $this);
         return($container);
+    }
+
+    /**
+     * buildRouter
+     * Build the router for matching requests to controllers,
+     * extended by children kernels.
+     *
+     * @return Symfony\Component\Router\Matcher\RequestMatcherInterface $router
+     */
+    protected function buildRouter()
+    {
+        $routes = new RouteCollection();
+        $context = new RequestContext();
+        $context->fromRequest($this->request);
+        $router = new UrlMatcher($routes, $context);
+
+        return($router);
     }
 
     /**

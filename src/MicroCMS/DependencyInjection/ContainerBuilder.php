@@ -26,9 +26,9 @@ class ContainerBuilder
 {
     /**
      * File locator for locating config files
-     * @param Symfony\Component\Config\FileLocatorInterface $config_locator
+     * @param Symfony\Component\Config\FileLocatorInterface $configLocator
      */
-    protected $config_locator;
+    protected $configLocator;
 
     /**
      * The Symfony Container Builder
@@ -70,7 +70,7 @@ class ContainerBuilder
      */
     public function setConfigLocator(FileLocatorInterface $config_locator)
     {
-        $this->config_locator = $config_locator;
+        $this->configLocator = $config_locator;
         return($this);
     }
 
@@ -82,7 +82,7 @@ class ContainerBuilder
      */
     protected function readConfig()
     {
-        if (!$this->config_locator) {
+        if (!$this->configLocator) {
             throw new \RuntimeException('No FileLocator for config file.');
         }
 
@@ -95,7 +95,7 @@ class ContainerBuilder
         $coreConfig = 'core_' . $env . '.yml';
         $appConfig = 'app_' . $env . '.yml';
 
-        $yamlLoader = new YamlFileLoader($this->container, $this->config_locator);
+        $yamlLoader = new YamlFileLoader($this->container, $this->configLocator);
 
         // Load the yaml files, core config is required
         try {
