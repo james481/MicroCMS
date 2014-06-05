@@ -115,6 +115,9 @@ class Kernel Extends AbstractKernel
             $this->container->getParameter('kernel.template_dir')
         );
 
+        // Inject logger
+        $builder->setLogger($this->container->get('logger'));
+
         $router = $builder->prepareRouter();
 
         return($router);

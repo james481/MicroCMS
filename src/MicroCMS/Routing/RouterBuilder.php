@@ -17,13 +17,22 @@ namespace MicroCMS\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Config\FileLocatorInterface;
-use Symfony\Component\Router\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use MicroCMS\Routing\Matcher\DefaultMatcher;
 use MicroCMS\Routing\Matcher\TemplateMatcher;
 
 class RouterBuilder
 {
+    use \MicroCMS\Kernel\LogAwareTrait;
+
+    /**
+     * RequestContext object
+     * @param Symfony\Component\Routing\RequestContext $context
+     */
+    protected $context;
+
     /**
      * The Kernel Environment
      * @param string kernelEnv
@@ -78,6 +87,13 @@ class RouterBuilder
     public function prepareRouter()
     {
         $router = new Router();
+
+        // Inject Logger if we have one
+        if ($this->logger) {
+            $router->setLogger($this->logger);
+        }
+
+        // Build the matcher stack
         $router->addMatcher($this->buildDefaultMatcher());
 
         if ($this->hasRoutingTemplates()) {
@@ -87,6 +103,9 @@ class RouterBuilder
         if ($this->hasRoutingConfig()) {
             $router->addMatcher($this->buildSymfonyMatcher());
         }
+
+        // Set Request Context
+        $router->setContext($this->getRequestContext());
 
         return($router);
     }
@@ -139,6 +158,22 @@ class RouterBuilder
         $matcher = new TemplateMatcher($this->templateDir);
 
         return($matcher);
+    }
+
+    /**
+     * getRequestContext
+     * Get the RequestContext of the request.
+     *
+     * @return Symfony\Component\Routing\RequestContext $context
+     */
+    protected function getRequestContext()
+    {
+        if (null === $this->context) {
+            $this->context = new RequestContext();
+            $this->context->fromRequest($this->request);
+        }
+
+        return($this->context);
     }
 
     /**
