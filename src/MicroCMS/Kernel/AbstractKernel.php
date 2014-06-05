@@ -175,7 +175,6 @@ abstract class AbstractKernel
     {
         $routes = new RouteCollection();
         $context = new RequestContext();
-        $context->fromRequest($this->request);
         $router = new UrlMatcher($routes, $context);
 
         return($router);

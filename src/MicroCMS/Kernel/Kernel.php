@@ -64,8 +64,6 @@ class Kernel Extends AbstractKernel
      */
     public function handle(Request $request)
     {
-        $this->request = $request;
-
         if (!$this->booted) {
             $this->bootstrap();
         }
@@ -110,13 +108,14 @@ class Kernel Extends AbstractKernel
         // Get the MicroCMS router builder, and build the router.
 
         $builder = new RouterBuilder(
-            $this->request,
             $this->container->get('kernel.config_locator'),
             $this->container->getParameter('kernel.template_dir')
         );
 
         // Inject logger
-        $builder->setLogger($this->container->get('logger'));
+        if ($this->container->has('logger')) {
+            $builder->setLogger($this->container->get('logger'));
+        }
 
         $router = $builder->prepareRouter();
 

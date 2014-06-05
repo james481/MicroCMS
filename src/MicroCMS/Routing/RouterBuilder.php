@@ -15,7 +15,6 @@
 
 namespace MicroCMS\Routing;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -46,12 +45,6 @@ class RouterBuilder
     protected $locator;
 
     /**
-     * The original request object
-     * @param Symfony\Component\HttpFoundation\Request $request
-     */
-    protected $request;
-
-    /**
      * The directory to look for routable templates
      * @param string $templateDir
      */
@@ -60,19 +53,16 @@ class RouterBuilder
     /**
      * Constructor
      *
-     * @param Symfony\Component\HttpFoundation\Request $request
      * @param Symfony\Component\Config\FileLocatorInterface $config_locator
      * @param string $template_path
      * @param string $kernel_env
      * @return null
      */
     public function __construct(
-        Request $request,
         FileLocatorInterface $config_locator = null,
         $template_path = null,
         $kernel_env = 'prod'
     ) {
-        $this->request = $request;
         $this->locator = $locator;
         $this->templateDir = $template_path;
         $this->kernelEnv = $kernel_env;
@@ -103,9 +93,6 @@ class RouterBuilder
         if ($this->hasRoutingConfig()) {
             $router->addMatcher($this->buildSymfonyMatcher());
         }
-
-        // Set Request Context
-        $router->setContext($this->getRequestContext());
 
         return($router);
     }
@@ -162,7 +149,7 @@ class RouterBuilder
 
     /**
      * getRequestContext
-     * Get the RequestContext of the request.
+     * Get blank RequestContext.
      *
      * @return Symfony\Component\Routing\RequestContext $context
      */
@@ -170,7 +157,6 @@ class RouterBuilder
     {
         if (null === $this->context) {
             $this->context = new RequestContext();
-            $this->context->fromRequest($this->request);
         }
 
         return($this->context);
