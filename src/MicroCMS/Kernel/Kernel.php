@@ -27,6 +27,12 @@ class Kernel Extends AbstractKernel
     const VERSION = '0.0.1';
 
     /**
+     * The app configuration directory
+     * @param string configDir
+     */
+    protected $configDir;
+
+    /**
      * getConfigDir
      * Get the global app config directory
      *
@@ -34,8 +40,11 @@ class Kernel Extends AbstractKernel
      */
     public function getConfigDir()
     {
-        $configDir = $this->getRootDir() . '/app/config/';
-        return($configDir);
+        if (null === $this->configDir) {
+            $this->configDir = $this->getRootDir() . '/app/config/';
+        }
+
+        return($this->configDir);
     }
 
     /**
@@ -73,6 +82,27 @@ class Kernel Extends AbstractKernel
     }
 
     /**
+     * setConfigDir
+     * Sets the application config directory
+     * (This is typically uneeded except for tests)
+     *
+     * @param string $configDir
+     * @return self $this
+     */
+    public function setConfigDir($configDir)
+    {
+        if (!is_dir($configDir)) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid Application Configuration Directory: %s', $configDir)
+            );
+        }
+
+        $this->configDir = $configDir;
+
+        return($this);
+    }
+
+    /**
      * buildContainer
      * Build the MicroCMS specific DI container
      *
@@ -106,7 +136,6 @@ class Kernel Extends AbstractKernel
     protected function buildRouter()
     {
         // Get the MicroCMS router builder, and build the router.
-
         $builder = new RouterBuilder(
             $this->container->get('kernel.config_locator'),
             $this->container->getParameter('kernel.template_dir')
@@ -117,6 +146,7 @@ class Kernel Extends AbstractKernel
             $builder->setLogger($this->container->get('logger'));
         }
 
+        // Finish Router
         $router = $builder->prepareRouter();
 
         return($router);

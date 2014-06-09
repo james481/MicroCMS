@@ -29,7 +29,7 @@ class AbstractKernelTest extends \PHPUnit_Framework_TestCase
         $kernel = $this->getTestKernelInstance();
         $kernel->setRootDir($this->getKernelRootDir());
         $this->assertFalse($kernel->getBooted());
-        $kernel->bootstrap($this->getEmptyRequest());
+        $kernel->bootstrap();
         $this->assertTrue($kernel->getBooted());
         $this->assertEquals($this->getKernelRootDir(), $kernel->getRootDir());
     }
@@ -43,16 +43,20 @@ class AbstractKernelTest extends \PHPUnit_Framework_TestCase
         $kernel = $this->getTestKernelInstance();
         $kernel->setRootDir($this->getKernelRootDir());
         $this->assertFalse($kernel->getBooted());
-        $kernel->bootstrap($this->getEmptyRequest());
+        $kernel->bootstrap();
         $this->assertTrue($kernel->getBooted());
 
+        $this->assertObjectHasAttribute('container', $kernel);
+        $this->assertAttributeInstanceOf(
+            'Symfony\Component\DependencyInjection\ContainerBuilder',
+            'container',
+            $kernel
+        );
+
         $ref = new \ReflectionClass($kernel);
-        $this->assertTrue($ref->hasProperty('container'));
         $container_ref = $ref->getProperty('container');
         $container_ref->setAccessible(true);
         $container = $container_ref->getValue($kernel);
-
-        $this->assertEquals('Symfony\Component\DependencyInjection\ContainerBuilder', get_class($container));
 
         return($container);
     }
@@ -81,16 +85,38 @@ class AbstractKernelTest extends \PHPUnit_Framework_TestCase
         $kernel = $this->getTestKernelInstance();
         $kernel->setRootDir($this->getKernelRootDir());
         $this->assertFalse($kernel->getBooted());
-        $kernel->bootstrap($this->getEmptyRequest());
+        $kernel->bootstrap();
         $this->assertTrue($kernel->getBooted());
 
-        $ref = new \ReflectionClass($kernel);
-        $this->assertTrue($ref->hasProperty('router'));
-        $router_ref = $ref->getProperty('router');
-        $router_ref->setAccessible(true);
-        $router = $router_ref->getValue($kernel);
+        $this->assertObjectHasAttribute('router', $kernel);
+        $this->assertAttributeInstanceOf(
+            'Symfony\Component\Routing\Matcher\UrlMatcherInterface',
+            'router',
+            $kernel
+        );
+    }
 
-        $this->assertTrue($router instanceof UrlMatcherInterface);
+    /**
+     * testHandleReturnsResponse
+     */
+    public function testHandleReturnsResponse()
+    {
+        $kernel = $this->getTestKernelInstance();
+        $kernel->setRootDir($this->getKernelRootDir());
+        $this->assertFalse($kernel->getBooted());
+        $response = $kernel->handle($this->getEmptyRequest());
+        $this->assertTrue($kernel->getBooted());
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
+    }
+
+    /**
+     * testInvalidRootDirThrowsException
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidRootDirThrowsException()
+    {
+        $kernel = $this->getTestKernelInstance();
+        $kernel->setRootDir(__DIR__ . '/invalid_dir');
     }
 
     /**

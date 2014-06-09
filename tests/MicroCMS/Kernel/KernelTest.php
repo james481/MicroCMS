@@ -18,6 +18,37 @@ namespace MicroCMS\Kernel;
 class KernelTest extends AbstractKernelTest
 {
     /**
+     * testContainerBuildsConfigLocator
+     */
+    public function testContainerBuildsConfigLocator()
+    {
+        $kernel = $this->getTestKernelInstance();
+        $kernel->setRootDir($this->getKernelRootDir());
+        $kernel->bootstrap();
+
+        $ref = new \ReflectionClass($kernel);
+        $container_ref = $ref->getProperty('container');
+        $container_ref->setAccessible(true);
+        $container = $container_ref->getValue($kernel);
+
+        $this->assertTrue($container->has('kernel.config_locator'));
+        $this->assertInstanceOf(
+            'Symfony\Component\Config\FileLocator',
+            $container->get('kernel.config_locator')
+        );
+    }
+
+    /**
+     * testInvalidConfigDirThrowsException
+     * @expectedException \InvalidArgumentException
+     */
+    public function testInvalidConfigDirThrowsException()
+    {
+        $kernel = $this->getTestKernelInstance();
+        $kernel->setConfigDir(__DIR__ . '/invalid_dir');
+    }
+
+    /**
      * getTestKernelInstance
      *
      * @return MicroCMS\Kernel\AbstractKernel $kernel

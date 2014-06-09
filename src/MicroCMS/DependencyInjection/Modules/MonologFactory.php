@@ -62,7 +62,8 @@ class MonologFactory implements ModuleFactoryInterface
     public function getServiceClass()
     {
         $this->checkFilePermissions();
-        $logger = new Logger();
+        $logger_name = 'MicroCMS_' . $this->env;
+        $logger = new Logger($logger_name);
         $logger->pushHandler(
             new StreamHandler($this->logFile, $this->getHandlerLevel())
         );

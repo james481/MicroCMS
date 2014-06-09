@@ -89,7 +89,7 @@ class ContainerBuilder
         // Get kernel environment
         $env = ($this->container->hasParameter('kernel.env')) ?
             $this->container->getParameter('kernel.env') :
-            null;
+            'prod';
 
         // Build file names
         $coreConfig = 'core_' . $env . '.yml';

@@ -1,0 +1,2 @@
+parameters:
+    app.test_param: test_param

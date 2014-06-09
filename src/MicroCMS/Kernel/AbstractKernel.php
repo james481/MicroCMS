@@ -134,10 +134,17 @@ abstract class AbstractKernel
      * Sets the application root directory
      * (This is typically unneeded except for tests)
      *
+     * @param string $rootDir
      * @return self $this
      */
     public function setRootDir($rootDir)
     {
+        if (!is_dir($rootDir)) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid Application Configuration Directory: %s', $rootDir)
+            );
+        }
+
         $this->rootDir = $rootDir;
     }
 
