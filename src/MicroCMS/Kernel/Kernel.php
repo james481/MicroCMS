@@ -77,7 +77,27 @@ class Kernel Extends AbstractKernel
             $this->bootstrap();
         }
 
-        $response = new Response(print_r($this->container, true));
+        try {
+            // Route Request
+            $req_info = $this->router->match($request->getPathInfo());
+
+            // Resolve Controller
+            $resolver = new Resolver();
+            $controller = $resolver->resolveController($req_info['_controller']);
+
+            if (false === $controller) {
+                throw new Exception(sprintf('Invalid Controller %s From Route %s', $req_info['_controller'], $req_info['_route']));
+            }
+
+            $arguments = $resolver->resolveArguments($controller, $request);
+
+            $response = call_user_func_array($controller, $arguments);
+
+        } catch (\Exception $e) {
+            // TODO: Handle exceptions based on env (show trace, etc)
+            $response = new Response(sprintf('Request Error: %s', $e->getMessage()));
+        }
+
         return($response);
     }
 
@@ -138,7 +158,8 @@ class Kernel Extends AbstractKernel
         // Get the MicroCMS router builder, and build the router.
         $builder = new RouterBuilder(
             $this->container->get('kernel.config_locator'),
-            $this->container->getParameter('kernel.template_dir')
+            $this->container->getParameter('kernel.template_dir'),
+            $this->container->getParameter('kernel.env')
         );
 
         // Inject logger

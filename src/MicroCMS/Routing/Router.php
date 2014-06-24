@@ -25,7 +25,7 @@ use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
 class Router implements UrlMatcherInterface
 {
-    use \MicroCMS\Kernel\LogAwareTrait;
+    use \MicroCMS\DependencyInjection\LogAwareTrait;
 
     /**
      * RequestContext object
@@ -47,6 +47,7 @@ class Router implements UrlMatcherInterface
      */
     public function addMatcher(UrlMatcherInterface $matcher)
     {
+        $this->debug(sprintf('addMatcher: Adding matcher %s', get_class($matcher)));
         $this->matchers[] = $matcher;
         return($this);
     }
@@ -85,12 +86,25 @@ class Router implements UrlMatcherInterface
      */
     public function match($pathinfo)
     {
+        $routes = array();
+        $this->debug(sprintf('match: Matching %s', $pathinfo));
+
         foreach (array_reverse($this->matchers) as $matcher) {
             try {
                 $routes = $matcher->match($pathinfo);
                 break;
             } catch (ResourceNotFoundException $e) {}
         }
+
+        if (!isset($routes['_route']) || !isset($routes['_controller'])) {
+            $mesg = 'match: No Routes Found.';
+            $this->alert($mesg);
+            throw new RoutingException($mesg);
+        }
+
+        $this->debug(sprintf('match: Route matched %s', $routes['_route']));
+
+        return($routes);
     }
 
     /**

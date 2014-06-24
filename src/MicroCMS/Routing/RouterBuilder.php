@@ -24,7 +24,7 @@ use MicroCMS\Routing\Matcher\TemplateMatcher;
 
 class RouterBuilder
 {
-    use \MicroCMS\Kernel\LogAwareTrait;
+    use \MicroCMS\DependencyInjection\LogAwareTrait;
 
     /**
      * RequestContext object
@@ -63,7 +63,7 @@ class RouterBuilder
         $template_path = null,
         $kernel_env = 'prod'
     ) {
-        $this->locator = $locator;
+        $this->locator = $config_locator;
         $this->templateDir = $template_path;
         $this->kernelEnv = $kernel_env;
     }
@@ -177,6 +177,7 @@ class RouterBuilder
                 $routing_file = $this->locator->locate($this->getRoutingFilename());
 
                 if (filesize($routing_file) > 0) {
+                    $this->debug(sprintf('hasRoutingConfig: Located Routing File %s', $routing_file));
                     $has_config = true;
                 }
             } catch (\InvalidArgumentException $e) {}
@@ -204,6 +205,7 @@ class RouterBuilder
             while (false !== ($template = $template_dir->read())) {
                 if (substr($template, -5) == '.html') {
                     $template_found = true;
+                    $this->debug('hasRoutingTemplates: Routable Templates Found.');
                     break;
                 }
             }
