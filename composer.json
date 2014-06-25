@@ -11,6 +11,7 @@
         "psr-4": {"MicroCMS\\": "src/MicroCMS"}
     },
     "require": {
+        "php": ">=5.4",
         "symfony/http-foundation": "2.5.*@dev",
         "symfony/routing": "2.5.*@dev",
         "symfony/dependency-injection": "2.5.*@dev",
