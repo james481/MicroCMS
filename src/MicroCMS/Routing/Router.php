@@ -34,10 +34,20 @@ class Router implements UrlMatcherInterface
     protected $context;
 
     /**
-     * Array of url matchers
-     * @param array $matchers
+     * Stack of url matchers
+     * @param \SplStack $matchers
      */
     protected $matchers;
+
+    /**
+     * Constructor
+     *
+     * @return null
+     */
+    public function __construct()
+    {
+        $this->matchers = new \SplStack();
+    }
 
     /**
      * addMatcher
@@ -48,7 +58,7 @@ class Router implements UrlMatcherInterface
     public function addMatcher(UrlMatcherInterface $matcher)
     {
         $this->debug(sprintf('addMatcher: Adding matcher %s', get_class($matcher)));
-        $this->matchers[] = $matcher;
+        $this->matchers->push($matcher);
         return($this);
     }
 
@@ -89,7 +99,7 @@ class Router implements UrlMatcherInterface
         $routes = array();
         $this->debug(sprintf('match: Matching %s', $pathinfo));
 
-        foreach (array_reverse($this->matchers) as $matcher) {
+        foreach ($this->matchers as $matcher) {
             try {
                 $routes = $matcher->match($pathinfo);
                 break;
