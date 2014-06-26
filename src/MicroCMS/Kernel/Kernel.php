@@ -16,9 +16,10 @@
 
 namespace MicroCMS\Kernel;
 
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Config\FileLocator;
 use MicroCMS\DependencyInjection\ContainerBuilder;
 use MicroCMS\Routing\RouterBuilder;
 
@@ -89,9 +90,20 @@ class Kernel Extends AbstractKernel
                 throw new Exception(sprintf('Invalid Controller %s From Route %s', $req_info['_controller'], $req_info['_route']));
             }
 
+            // If the controller is ContainerAware, inject the container
+            if ($controller[0] instanceof ContainerAwareInterface) {
+                $controller[0]->setContainer($this->container);
+            }
+
+            // Build controller method arguments
             $arguments = $resolver->resolveArguments($controller, $request);
 
+            // Call controller and get response
             $response = call_user_func_array($controller, $arguments);
+
+            if (!$response instanceof Response) {
+                throw new Exception(sprintf('Controller %s did not return a valid Response object.', $req_info['controller']));
+            }
 
         } catch (\Exception $e) {
             // TODO: Handle exceptions based on env (show trace, etc)
@@ -148,8 +160,7 @@ class Kernel Extends AbstractKernel
 
     /**
      * buildRouter
-     * Build the router for matching requests to controllers,
-     * extended by children kernels.
+     * Build the router for matching requests to controllers.
      *
      * @return Symfony\Component\Router\Matcher\RequestMatcherInterface $router
      */

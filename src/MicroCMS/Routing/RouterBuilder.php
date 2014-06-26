@@ -142,7 +142,7 @@ class RouterBuilder
             throw new \InvalidArgumentException('Unable to build Template matcher without valid template directory.');
         }
 
-        $matcher = new TemplateMatcher($this->templateDir);
+        $matcher = new TemplateMatcher($this->templateDir, $this->getRequestContext());
 
         return($matcher);
     }

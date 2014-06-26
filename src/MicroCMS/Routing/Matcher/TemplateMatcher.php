@@ -17,6 +17,9 @@
 namespace MicroCMS\Routing\Matcher;
 
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
@@ -28,6 +31,40 @@ class TemplateMatcher implements UrlMatcherInterface
      * @param Symfony\Component\Routing\RequestContext $context
      */
     protected $context;
+
+    /**
+     * Request object
+     * @param Symfony\Component\HttpFoundation\Request $request
+     */
+    protected $request;
+
+    /**
+     * Collection of routes
+     * @param Symfony\Component\Routing\RouteCollection $routes
+     */
+    protected $routes;
+
+    /**
+     * The routable templates directory
+     * @param string templatePath
+     */
+    protected $templatePath;
+
+    /**
+     * Constructor
+     *
+     * @param mixed $template_path
+     * @param mixed RequestContext $context
+     * @return null
+     */
+    public function __construct($template_path, RequestContext $context)
+    {
+        $this->templatePath = $template_path;
+        $this->context = $context;
+
+        // Build routes from templates
+        $this->buildRoutes();
+    }
 
     /**
      * GetContext
@@ -65,5 +102,19 @@ class TemplateMatcher implements UrlMatcherInterface
     public function setContext(RequestContext $context)
     {
         $this->context = $context;
+    }
+
+    /**
+     * buildRoutes
+     * Build the collection of available routes from
+     * the templates in the templates directory.
+     *
+     * @return void
+     */
+    protected function buildRoutes()
+    {
+        if (!$this->templatePath || !is_dir($this->templatePath)) {
+            throw new \InvalidArgumentException(sprintf('Invalid template path: %s', $this->templatePath));
+        }
     }
 }

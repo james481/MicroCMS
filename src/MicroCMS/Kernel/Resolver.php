@@ -20,6 +20,36 @@ use Symfony\Component\HttpFoundation\Request;
 class Resolver
 {
     /**
+     * resolveArguments
+     * Resolve controller method arguments from the request object.
+     *
+     * @return array $arguments
+     */
+    public function resolveArguments(Callable $callable, Request $request)
+    {
+        $arguments = array();
+
+        // Examine the controller method with reflection and
+        // build arguments
+        $ref = new \ReflectionMethod($callable[0], $callable[1]);
+        $req_attr = $request->attributes->all();
+
+        foreach ($ref->getParameters() as $parameter) {
+            if (array_key_exists($parameter->name, $req_attr)) {
+                $arguments[] = $req_attr[$parameter->name];
+            } elseif ($parameter->getClass() && $parameter->getClass()->isInstance($request)) {
+                $arguments[] = $request;
+            } elseif ($parameter->isDefaultValueAvailable()) {
+                $arguments[] = $parameter->getDefaultValue();
+            } else {
+                throw new \RuntimeException(sprintf('Controller %s::%s requires a value for parameter %s.', $callable[0], $callable[1], $parameter->name));
+            }
+        }
+
+        return($arguments);
+    }
+
+    /**
      * resolveController
      * Resolve a route string ('controller::method') into a
      * callable, or false if it doesn't exist.
@@ -45,33 +75,4 @@ class Resolver
         return($callable);
     }
 
-    /**
-     * resolveArguments
-     * Resolve controller method arguments from the request object.
-     *
-     * @return array $arguments
-     */
-    public function resolveArguments(Array $callable, Request $request)
-    {
-        $arguments = array();
-
-        // Examine the controller method with reflection and
-        // build arguments
-        $ref = new \ReflectionMethod($callable[0], $callable[1]);
-        $req_attr = $request->attributes->all();
-
-        foreach ($ref->getParameters() as $parameter) {
-            if (array_key_exists($parameter->name, $req_attr)) {
-                $arguments[] = $req_attr[$parameter->name];
-            } elseif ($parameter->getClass() && $parameter->getClass()->isInstance($request)) {
-                $arguments[] = $request;
-            } elseif ($parameter->isDefaultValueAvailable()) {
-                $arguments[] = $parameter->getDefaultValue();
-            } else {
-                throw new \RuntimeException(sprintf('Controller %s::%s requires a value for parameter %s.', $callable[0], $callable[1], $parameter->name));
-            }
-        }
-
-        return($arguments);
-    }
 }
