@@ -61,6 +61,7 @@ class TemplateMatcher implements UrlMatcherInterface
     {
         $this->templatePath = $template_path;
         $this->context = $context;
+        $this->routes = new RouteCollection();
 
         // Build routes from templates
         $this->buildRoutes();
@@ -115,6 +116,26 @@ class TemplateMatcher implements UrlMatcherInterface
     {
         if (!$this->templatePath || !is_dir($this->templatePath)) {
             throw new \InvalidArgumentException(sprintf('Invalid template path: %s', $this->templatePath));
+        }
+
+        $templates = new \FilesystemIterator($this->templatePath);
+
+        foreach ($templates as $template) {
+
+            // Is this a routable template?
+            if (
+                $template->isReadable() &&
+                ('.html' === substr($template->getFilename(),-5)) &&
+                ('_' !== substr($template->getFilename(), 0, 1))
+            ) {
+
+                // Construct routes for both 'foo.html' and 'foo'
+                $template_fullname = urlencode(strtolower($template->getFilename()));
+                $template_shortname = substr($template_fullname, 0, -5);
+
+                $this->routes->add($template_fullname, new Route($template_fullname));
+                $this->routes->add($template_shortname, new Route($template_shortname));
+            }
         }
     }
 }
