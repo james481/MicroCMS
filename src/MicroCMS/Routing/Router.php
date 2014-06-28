@@ -79,7 +79,7 @@ class Router implements UrlMatcherInterface, RequestMatcherInterface
      * getMatchers
      * Get the array of registered matchers.
      *
-     * @return array $matchers
+     * @return \SplStack $matchers
      */
     public function getMatchers()
     {
@@ -90,11 +90,10 @@ class Router implements UrlMatcherInterface, RequestMatcherInterface
      * match
      * Match a request URL to a route.
      *
-     * @param string $pathinfo The path info to be parsed
-     * @return array An array of parameters
+     * @param string $pathinfo
+     * @return array $routes
      *
-     * @throws ResourceNotFoundException
-     * @throws MethodNotAllowedException
+     * @throws RoutingException
      */
     public function match($pathinfo)
     {
@@ -105,7 +104,9 @@ class Router implements UrlMatcherInterface, RequestMatcherInterface
             try {
                 $routes = $matcher->match($pathinfo);
                 break;
-            } catch (ResourceNotFoundException $e) {}
+            } catch (ResourceNotFoundException $e) {
+            } catch (MethodNotAllowedException $e) {
+            }
         }
 
         if (!isset($routes['_route']) || !isset($routes['_controller'])) {
@@ -126,8 +127,7 @@ class Router implements UrlMatcherInterface, RequestMatcherInterface
      * @param Request $request The request to match
      * @return array An array of parameters
      *
-     * @throws ResourceNotFoundException
-     * @throws MethodNotAllowedException
+     * @throws RoutingException
      */
     public function matchRequest(Request $request) {
         $context = new RequestContext();

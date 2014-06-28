@@ -105,7 +105,7 @@ class RouterBuilder
      */
     protected function buildDefaultMatcher()
     {
-        $matcher = new DefaultMatcher();
+        $matcher = new DefaultMatcher($this->templateDir, $this->getRequestContext());
         return($matcher);
     }
 

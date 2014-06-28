@@ -19,7 +19,6 @@ namespace MicroCMS\Routing\Matcher;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
@@ -36,13 +35,7 @@ class TemplateMatcher implements UrlMatcherInterface
      * Controller for template routes
      * @param string $controller
      */
-    protected $controller = 'MicroCMS\\Controller\\TemplateController';
-
-    /**
-     * Request object
-     * @param Symfony\Component\HttpFoundation\Request $request
-     */
-    protected $request;
+    protected $controller = 'MicroCMS\\Controller\\TemplateController::indexAction';
 
     /**
      * Collection of routes
@@ -88,8 +81,8 @@ class TemplateMatcher implements UrlMatcherInterface
      * match
      * Match a request URL to a route.
      *
-     * @param string $pathinfo The path info to be parsed
-     * @return array An array of parameters
+     * @param string $pathinfo
+     * @return array $return
      *
      * @throws ResourceNotFoundException If the resource could not be found
      * @throws MethodNotAllowedException If the resource was found but the request method is not allowed

@@ -19,15 +19,51 @@ namespace MicroCMS\Routing\Matcher;
 
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class DefaultMatcher implements UrlMatcherInterface
 {
+    /**
+     * Templates for default routes
+     */
+    const NOTFOUND = '404.html';
+    const HOME = 'index.html';
+
     /**
      * RequestContext object
      * @param Symfony\Component\Routing\RequestContext $context
      */
     protected $context;
+
+    /**
+     * Controller for template routes
+     * @param string $controller
+     */
+    protected $controller = 'MicroCMS\\Controller\\TemplateController::indexAction';
+
+    /**
+     * Controller for last resort 404 route
+     * @param string errorController
+     */
+    protected $errorController = 'MicroCMS\\Controller\\ErrorController::notFoundAction';
+
+    /**
+     * The routable templates directory
+     * @param string templatePath
+     */
+    protected $templatePath;
+
+    /**
+     * Constructor
+     *
+     * @param mixed $template_path
+     * @param mixed RequestContext $context
+     * @return null
+     */
+    public function __construct($template_path = null, RequestContext $context)
+    {
+        $this->templatePath = $template_path;
+        $this->context = $context;
+    }
 
     /**
      * GetContext
@@ -44,15 +80,54 @@ class DefaultMatcher implements UrlMatcherInterface
      * match
      * Match a request URL to a route.
      *
-     * @param string $pathinfo The path info to be parsed
-     * @return array An array of parameters
+     * @param string $pathinfo
+     * @return array $return
      *
      * @throws ResourceNotFoundException If the resource could not be found
      * @throws MethodNotAllowedException If the resource was found but the request method is not allowed
      */
     public function match($pathinfo)
     {
-        return(array());
+        $return = null;
+
+        // Default (homepage) - index.html
+        if (
+            ('/' === $pathinfo) &&
+            $this->templatePath &&
+            in_array($this->context->getMethod(), array('GET', 'HEAD')) &&
+            file_exists($this->templatePath . self::HOME) &&
+            is_readable($this->templatePath . self::HOME)
+        ) {
+            $return = array(
+                '_controller' => $this->controller,
+                '_route' => 'home',
+                '_template' => self::HOME,
+            );
+        }
+
+        // 404 not found - 404.html
+        if (
+            !$return &&
+            $this->templatePath &&
+            file_exists($this->templatePath . self::NOTFOUND) &&
+            is_readable($this->templatePath . self::NOTFOUND)
+        ) {
+            $return = array(
+                '_controller' => $this->controller,
+                '_route' => '404.html',
+                '_template' => self::NOTFOUND,
+            );
+        }
+
+        // 404 not found - last resort
+        if (!$return) {
+            $return = array(
+                '_controller' => $this->errorController,
+                '_route' => '404',
+            );
+        }
+
+        return($return);
     }
 
     /**
