@@ -33,6 +33,12 @@ class TemplateMatcher implements UrlMatcherInterface
     protected $context;
 
     /**
+     * Controller for template routes
+     * @param string $controller
+     */
+    protected $controller = 'MicroCMS\\Controller\\TemplateController';
+
+    /**
      * Request object
      * @param Symfony\Component\HttpFoundation\Request $request
      */
@@ -90,7 +96,33 @@ class TemplateMatcher implements UrlMatcherInterface
      */
     public function match($pathinfo)
     {
-        return(array());
+        // Template router only accepts GET or HEAD requests
+        if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+            throw new MethodNotAllowedException(array('GET', 'HEAD'));
+        }
+
+        $matched_route = null;
+        foreach ($this->routes as $name => $route) {
+            // TODO Hostname / other route requirements?
+            if ($pathinfo === $route->getPath()) {
+                $matched_route = $route;
+                break;
+            }
+        }
+
+        if ($matched_route) {
+            $return = array_merge(
+                array(
+                    '_controller' => $this->controller,
+                    '_route' => $route->getPath(),
+                ),
+                $matched_route->getDefaults()
+            );
+
+            return($return);
+        } else {
+            throw new ResourceNotFoundException();
+        }
     }
 
     /**
@@ -124,6 +156,7 @@ class TemplateMatcher implements UrlMatcherInterface
 
             // Is this a routable template?
             if (
+                $template->isFile() &&
                 $template->isReadable() &&
                 ('.html' === substr($template->getFilename(),-5)) &&
                 ('_' !== substr($template->getFilename(), 0, 1))
@@ -132,9 +165,10 @@ class TemplateMatcher implements UrlMatcherInterface
                 // Construct routes for both 'foo.html' and 'foo'
                 $template_fullname = urlencode(strtolower($template->getFilename()));
                 $template_shortname = substr($template_fullname, 0, -5);
+                $defaults = array('_template' => $template->getFilename());
 
-                $this->routes->add($template_fullname, new Route($template_fullname));
-                $this->routes->add($template_shortname, new Route($template_shortname));
+                $this->routes->add($template_fullname, new Route($template_fullname, $defaults));
+                $this->routes->add($template_shortname, new Route($template_shortname, $defaults));
             }
         }
     }

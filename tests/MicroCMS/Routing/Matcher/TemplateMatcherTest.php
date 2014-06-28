@@ -46,4 +46,68 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayNotHasKey('_noroute', $routes);
         $this->assertArrayNotHasKey('_noroute.html', $routes);
     }
+
+    /**
+     * testMatcherMatchesRoutes
+     */
+    public function testMatcherMatchesRoutes()
+    {
+        $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $context = new RequestContext();
+
+        $matcher = new TemplateMatcher($template_dir, $context);
+
+        // match will throw if it doesn't find something
+        $match = $matcher->match('/test');
+        $this->assertEquals('/test', $match['_route']);
+        $this->assertEquals('test.html', $match['_template']);
+
+        $match = $matcher->match('/test.html');
+        $this->assertEquals('/test.html', $match['_route']);
+        $this->assertEquals('test.html', $match['_template']);
+    }
+
+    /**
+     * testMatcherThrowsNotfoundException
+     *
+     * @expectedException Symfony\Component\Routing\Exception\ResourceNotFoundException
+     */
+    public function testMatcherThrowsNotfoundException()
+    {
+        $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $context = new RequestContext();
+
+        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher->match('/invalid');
+    }
+
+    /**
+     * testMatcherThrowsUnroutableException
+     *
+     * @expectedException Symfony\Component\Routing\Exception\ResourceNotFoundException
+     */
+    public function testMatcherThrowsUnroutableException()
+    {
+        $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $context = new RequestContext();
+
+        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher->match('/_noroute');
+    }
+
+    /**
+     * testMatcherThrowsMethodException
+     *
+     * @return void
+     * @expectedException Symfony\Component\Routing\Exception\MethodNotAllowedException
+
+     */
+    public function testMatcherThrowsMethodException()
+    {
+        $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $context = new RequestContext('/test', 'POST');
+
+        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher->match('/test');
+    }
 }

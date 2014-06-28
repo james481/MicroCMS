@@ -80,7 +80,7 @@ class Kernel Extends AbstractKernel
 
         try {
             // Route Request
-            $req_info = $this->router->match($request->getPathInfo());
+            $req_info = $this->router->matchRequest($request);
 
             // Resolve Controller
             $resolver = new Resolver();

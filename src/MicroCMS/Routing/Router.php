@@ -19,11 +19,13 @@
 namespace MicroCMS\Routing;
 
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
-class Router implements UrlMatcherInterface
+class Router implements UrlMatcherInterface, RequestMatcherInterface
 {
     use \MicroCMS\DependencyInjection\LogAwareTrait;
 
@@ -91,8 +93,8 @@ class Router implements UrlMatcherInterface
      * @param string $pathinfo The path info to be parsed
      * @return array An array of parameters
      *
-     * @throws ResourceNotFoundException If the resource could not be found
-     * @throws MethodNotAllowedException If the resource was found but the request method is not allowed
+     * @throws ResourceNotFoundException
+     * @throws MethodNotAllowedException
      */
     public function match($pathinfo)
     {
@@ -115,6 +117,24 @@ class Router implements UrlMatcherInterface
         $this->debug(sprintf('match: Route matched %s', $routes['_route']));
 
         return($routes);
+    }
+
+    /**
+     * matchRequest
+     * Match a Request object to a set of routes.
+     *
+     * @param Request $request The request to match
+     * @return array An array of parameters
+     *
+     * @throws ResourceNotFoundException
+     * @throws MethodNotAllowedException
+     */
+    public function matchRequest(Request $request) {
+        $context = new RequestContext();
+        $context->fromRequest($request);
+        $this->setContext($context);
+
+        return($this->match($request->getPathInfo()));
     }
 
     /**
