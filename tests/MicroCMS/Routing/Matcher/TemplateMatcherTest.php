@@ -35,7 +35,6 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
         $routes = $routes_ref->getValue($matcher)->all();
 
         // Assert we have routes for the test template
-        $this->assertCount(2, $routes);
         $this->assertArrayHasKey('test', $routes);
         $this->assertInstanceOf('Symfony\Component\Routing\Route', $routes['test']);
 

@@ -25,7 +25,7 @@ class DefaultMatcher implements UrlMatcherInterface
     /**
      * Templates for default routes
      */
-    const NOTFOUND = '404.html';
+    const NOTFOUND = '_404.html';
     const HOME = 'index.html';
 
     /**
