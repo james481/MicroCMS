@@ -26,6 +26,24 @@ trait LogAwareTrait
     protected $logger;
 
     /**
+     * getLogger
+     * This is implemented here so it can be
+     * overridden by classes if needed.
+     *
+     * @return Monolog\Logger|null $logger
+     */
+    public function getLogger()
+    {
+        $logger = null;
+
+        if ($this->logger) {
+            $logger = $this->logger;
+        }
+
+        return($logger);
+    }
+
+    /**
      * setLogger
      * Set the logger object.
      *
@@ -48,9 +66,9 @@ trait LogAwareTrait
      */
     protected function log($level, $mesg, $context = array())
     {
-        if ($this->logger) {
+        if ($logger = $this->getLogger()) {
             $context = array_merge($this->getDefaultContext(), $context);
-            $this->logger->log($level, $mesg, $context);
+            $logger->log($level, $mesg, $context);
         }
     }
 
