@@ -18,7 +18,7 @@ namespace MicroCMS\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use MicroCMS\DependencyInjection\Modules\MonologFactory;
-
+use MicroCMS\DependencyInjection\Modules\TwigFactory;
 
 class ServiceFactory
 {
@@ -32,6 +32,23 @@ class ServiceFactory
     {
         $factory = new MonologFactory(
             $container->getParameter('kernel.log_dir'),
+            $container->getParameter('kernel.env')
+        );
+
+        return($factory->getServiceClass());
+    }
+
+    /**
+     * buildTemplating
+     * Build the twig templating service
+     *
+     * @return \Twig_Environment $twig
+     */
+    public static function buildTemplating(ContainerInterface $container)
+    {
+        $factory = new TwigFactory(
+            $container->getParameter('kernel.template_dir'),
+            $container->getParameter('kernel.cache_dir'),
             $container->getParameter('kernel.env')
         );
 

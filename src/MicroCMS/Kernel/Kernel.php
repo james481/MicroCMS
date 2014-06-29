@@ -91,6 +91,7 @@ class Kernel Extends AbstractKernel
             }
 
             // If the controller is ContainerAware, inject the container
+            $this->container->set('request', $request);
             if ($controller[0] instanceof ContainerAwareInterface) {
                 $controller[0]->setContainer($this->container);
             }
