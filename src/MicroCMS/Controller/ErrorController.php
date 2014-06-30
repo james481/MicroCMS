@@ -15,6 +15,8 @@
 
 namespace MicroCMS\Controller;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class ErrorController extends AbstractController
 {
     const NOTFOUND_CONTENT = '<h1>404</h1><br />This page could not be found.';
@@ -29,7 +31,7 @@ class ErrorController extends AbstractController
     public function notFoundAction()
     {
         $res = $this->getResponse();
-        $res->setStatusCode(Response::HTTP_NOTFOUND);
+        $res->setStatusCode(Response::HTTP_NOT_FOUND);
         $res->setContent(self::NOTFOUND_CONTENT);
 
         return($res);

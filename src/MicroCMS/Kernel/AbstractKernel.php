@@ -100,6 +100,17 @@ abstract class AbstractKernel
     }
 
     /**
+     * getRequest
+     * Get the request object
+     *
+     * @return Symfony\Component\HttpFoundation\Request $request
+     */
+    public function getRequest()
+    {
+        return($this->request);
+    }
+
+    /**
      * getRootDir
      * Gets the application root directory
      *

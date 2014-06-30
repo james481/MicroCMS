@@ -62,7 +62,7 @@ class Resolver
         $callable = false;
 
         if (false !== strpos($controller, '::')) {
-            list($controller_class, $method) = explode($controller, '::', 2);
+            list($controller_class, $method) = explode('::', $controller, 2);
 
             if (class_exists($controller_class)) {
 

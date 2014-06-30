@@ -50,10 +50,11 @@ abstract class AbstractController implements ContainerAwareInterface
      */
     public function getRequest()
     {
+
         $request = null;
 
-        if ($this->container && $this->container->has('request')) {
-            $request = $this->container->get('request');
+        if ($this->container) {
+            $request = $this->container->get('kernel')->getRequest();
         }
 
         return($request);
