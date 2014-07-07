@@ -198,8 +198,8 @@ class Kernel Extends AbstractKernel
     {
         // Get the MicroCMS router builder, and build the router.
         $builder = new RouterBuilder(
+            $this->container->get('template_resolver'),
             $this->container->get('kernel.config_locator'),
-            $this->container->getParameter('kernel.template_dir'),
             $this->container->getParameter('kernel.env')
         );
 

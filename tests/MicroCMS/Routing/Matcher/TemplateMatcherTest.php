@@ -16,45 +16,20 @@
 namespace MicroCMS\Routing\Matcher;
 
 use Symfony\Component\Routing\RequestContext;
+use MicroCMS\Template\Resolver;
 
 class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * testMatcherBuildsRoutes
-     */
-    public function testMatcherBuildsRoutes()
-    {
-        $template_dir = __DIR__ . '/../Fixtures/templates/';
-        $context = new RequestContext();
-
-        $matcher = new TemplateMatcher($template_dir, $context);
-
-        $ref = new \ReflectionClass($matcher);
-        $routes_ref = $ref->getProperty('routes');
-        $routes_ref->setAccessible(true);
-        $routes = $routes_ref->getValue($matcher)->all();
-
-        // Assert we have routes for the test template
-        $this->assertArrayHasKey('test', $routes);
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $routes['test']);
-
-        $this->assertArrayHasKey('test.html', $routes);
-        $this->assertInstanceOf('Symfony\Component\Routing\Route', $routes['test.html']);
-
-        // Assert that we don't have routes for unroutable '_*.html' templates
-        $this->assertArrayNotHasKey('_noroute', $routes);
-        $this->assertArrayNotHasKey('_noroute.html', $routes);
-    }
-
     /**
      * testMatcherMatchesRoutes
      */
     public function testMatcherMatchesRoutes()
     {
         $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher = new TemplateMatcher($resolver, $context);
 
         // match will throw if it doesn't find something
         $match = $matcher->match('/test');
@@ -74,9 +49,10 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatcherThrowsNotfoundException()
     {
         $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher = new TemplateMatcher($resolver, $context);
         $matcher->match('/invalid');
     }
 
@@ -88,9 +64,10 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatcherThrowsUnroutableException()
     {
         $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher = new TemplateMatcher($resolver, $context);
         $matcher->match('/_noroute');
     }
 
@@ -104,9 +81,10 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatcherThrowsMethodException()
     {
         $template_dir = __DIR__ . '/../Fixtures/templates/';
-        $context = new RequestContext('/test', 'POST');
+        $resolver = new Resolver($template_dir);
+        $context = new RequestContext();
 
-        $matcher = new TemplateMatcher($template_dir, $context);
+        $matcher = new TemplateMatcher($resolver, $context);
         $matcher->match('/test');
     }
 }

@@ -19,6 +19,7 @@ use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
+use MicroCMS\Template\Resolver;
 use MicroCMS\Routing\Matcher\DefaultMatcher;
 use MicroCMS\Routing\Matcher\TemplateMatcher;
 
@@ -45,26 +46,26 @@ class RouterBuilder
     protected $locator;
 
     /**
-     * The directory to look for routable templates
-     * @param string $templateDir
+     * Template Resolver
+     * @param MicroCMS\Template\Resolver $resolver
      */
-    protected $templateDir;
+    protected $resolver;
 
     /**
      * Constructor
      *
+     * @param MicroCMS\Template\Resolver $resolver
      * @param Symfony\Component\Config\FileLocatorInterface $config_locator
-     * @param string $template_path
      * @param string $kernel_env
      * @return null
      */
     public function __construct(
+        Resolver $resolver,
         FileLocatorInterface $config_locator = null,
-        $template_path = null,
         $kernel_env = 'prod'
     ) {
+        $this->resolver = $resolver;
         $this->locator = $config_locator;
-        $this->templateDir = $template_path;
         $this->kernelEnv = $kernel_env;
     }
 
@@ -105,7 +106,7 @@ class RouterBuilder
      */
     protected function buildDefaultMatcher()
     {
-        $matcher = new DefaultMatcher($this->templateDir, $this->getRequestContext());
+        $matcher = new DefaultMatcher($this->resolver, $this->getRequestContext());
         return($matcher);
     }
 
@@ -138,11 +139,7 @@ class RouterBuilder
      */
     protected function buildTemplateMatcher()
     {
-        if (!$this->templateDir || !is_dir($this->templateDir)) {
-            throw new \InvalidArgumentException('Unable to build Template matcher without valid template directory.');
-        }
-
-        $matcher = new TemplateMatcher($this->templateDir, $this->getRequestContext());
+        $matcher = new TemplateMatcher($this->resolver, $this->getRequestContext());
 
         return($matcher);
     }
@@ -195,23 +192,7 @@ class RouterBuilder
      */
     protected function hasRoutingTemplates()
     {
-        $template_found = false;
-
-        if ($this->templateDir && is_dir($this->templateDir)) {
-
-            // Check the template directory for template files.
-            $template_dir = dir($this->templateDir);
-
-            while (false !== ($template = $template_dir->read())) {
-                if (substr($template, -5) == '.html') {
-                    $template_found = true;
-                    $this->debug('hasRoutingTemplates: Routable Templates Found.');
-                    break;
-                }
-            }
-        }
-
-        return($template_found);
+        return($this->resolver->hasRoutableTemplates());
     }
 
     /**

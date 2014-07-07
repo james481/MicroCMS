@@ -16,6 +16,7 @@
 namespace MicroCMS\Routing\Matcher;
 
 use Symfony\Component\Routing\RequestContext;
+use MicroCMS\Template\Resolver;
 
 class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,14 +26,15 @@ class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatcherHomepageRoute()
     {
         $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new DefaultMatcher($template_dir, $context);
+        $matcher = new DefaultMatcher($resolver, $context);
         $match = $matcher->match('/');
 
         $this->assertArrayHasKey('_controller', $match);
-        $this->assertArrayHasKey('_template', $match);
-        $this->assertEquals(DefaultMatcher::HOME, $match['_template']);
+        $this->assertArrayHasKey('_route', $match);
+        $this->assertEquals(Resolver::INDEX_TEMPLATE, $match['_route']);
     }
 
     /**
@@ -41,14 +43,14 @@ class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatcherHomepageNoTemplate()
     {
         // If no homepage template is found, we should get 404
-        $template_dir = __DIR__ . '/../Fixtures/invalid/';
+        $template_dir = __DIR__ . '/../Fixtures/templates_empty/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new DefaultMatcher($template_dir, $context);
+        $matcher = new DefaultMatcher($resolver, $context);
         $match = $matcher->match('/');
 
         $this->assertArrayHasKey('_controller', $match);
-        $this->assertArrayNotHasKey('_template', $match);
         $this->assertArrayHasKey('_route', $match);
         $this->assertEquals('404', $match['_route']);
     }
@@ -61,14 +63,15 @@ class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
         // If we have a 404 template, we should get
         // a route to the template controller on 404
         $template_dir = __DIR__ . '/../Fixtures/templates/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new DefaultMatcher($template_dir, $context);
+        $matcher = new DefaultMatcher($resolver, $context);
         $match = $matcher->match('/invalid');
 
         $this->assertArrayHasKey('_controller', $match);
-        $this->assertArrayHasKey('_template', $match);
-        $this->assertEquals(DefaultMatcher::NOTFOUND, $match['_template']);
+        $this->assertArrayHasKey('_route', $match);
+        $this->assertEquals(Resolver::NOTFOUND_TEMPLATE, $match['_route']);
     }
 
     /**
@@ -77,14 +80,14 @@ class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
     public function testMatcherNotFoundNoTemplate()
     {
         // No 404 template should route to the error controller
-        $template_dir = __DIR__ . '/../Fixtures/invalid/';
+        $template_dir = __DIR__ . '/../Fixtures/templates_empty/';
+        $resolver = new Resolver($template_dir);
         $context = new RequestContext();
 
-        $matcher = new DefaultMatcher($template_dir, $context);
+        $matcher = new DefaultMatcher($resolver, $context);
         $match = $matcher->match('/invalid');
 
         $this->assertArrayHasKey('_controller', $match);
-        $this->assertArrayNotHasKey('_template', $match);
         $this->assertArrayHasKey('_route', $match);
         $this->assertEquals('404', $match['_route']);
     }

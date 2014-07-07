@@ -16,7 +16,7 @@
 
 namespace MicroCMS\Template;
 
-class TemplateResolver
+class Resolver
 {
     use \MicroCMS\DependencyInjection\LogAwareTrait;
 
@@ -42,7 +42,7 @@ class TemplateResolver
      * Routable Template Index
      * @param array $templateIndex
      */
-    protected $templateIndex;
+    protected $templateIndex = array();
 
     /**
      * The routable templates directories, as
@@ -63,10 +63,33 @@ class TemplateResolver
      * @param string|array $template_path
      * @return null
      */
-    public function __construct($template_path)
+    public function __construct($template_path = array())
     {
         $this->templatePath = (array) $template_path;
         $this->validateTemplatePath();
+    }
+
+    /**
+     * hasRoutableTemplates
+     * Determine if routable templates other than
+     * home and 404 exist.
+     *
+     * @return bool $routable
+     */
+    public function hasRoutableTemplates()
+    {
+        $this->buildTemplateIndex();
+
+        $routable = false;
+
+        foreach ($this->templateIndex as $name => $template) {
+            if (($name !== self::INDEX_TEMPLATE) && ($name !== self::NOTFOUND_TEMPLATE)) {
+                $routable = true;
+                break;
+            }
+        }
+
+        return($routable);
     }
 
     /**

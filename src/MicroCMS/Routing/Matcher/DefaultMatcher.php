@@ -19,15 +19,10 @@ namespace MicroCMS\Routing\Matcher;
 
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
+use MicroCMS\Template\Resolver;
 
 class DefaultMatcher implements UrlMatcherInterface
 {
-    /**
-     * Templates for default routes
-     */
-    const NOTFOUND = '_404.html';
-    const HOME = 'index.html';
-
     /**
      * RequestContext object
      * @param Symfony\Component\Routing\RequestContext $context
@@ -47,21 +42,21 @@ class DefaultMatcher implements UrlMatcherInterface
     protected $errorController = 'MicroCMS\\Controller\\ErrorController::notFoundAction';
 
     /**
-     * The routable templates directory
-     * @param string templatePath
+     * Template Resolver
+     * @param MicroCMS\Template\Resolver $resolver
      */
-    protected $templatePath;
+    protected $resolver;
 
     /**
      * Constructor
      *
-     * @param mixed $template_path
+     * @param MicroCMS\Template\Resolver $resolver
      * @param mixed RequestContext $context
      * @return null
      */
-    public function __construct($template_path = null, RequestContext $context)
+    public function __construct(Resolver $resolver, RequestContext $context)
     {
-        $this->templatePath = $template_path;
+        $this->resolver = $resolver;
         $this->context = $context;
     }
 
@@ -82,9 +77,6 @@ class DefaultMatcher implements UrlMatcherInterface
      *
      * @param string $pathinfo
      * @return array $return
-     *
-     * @throws ResourceNotFoundException If the resource could not be found
-     * @throws MethodNotAllowedException If the resource was found but the request method is not allowed
      */
     public function match($pathinfo)
     {
@@ -93,29 +85,20 @@ class DefaultMatcher implements UrlMatcherInterface
         // Default (homepage) - index.html
         if (
             ('/' === $pathinfo) &&
-            $this->templatePath &&
-            in_array($this->context->getMethod(), array('GET', 'HEAD')) &&
-            file_exists($this->templatePath . self::HOME) &&
-            is_readable($this->templatePath . self::HOME)
+            ($index_template = $this->resolver->resolveIndexTemplate())
         ) {
             $return = array(
                 '_controller' => $this->controller,
-                '_route' => 'home',
-                '_template' => self::HOME,
+                '_route' => $index_template->getRenderName(),
             );
         }
 
         // 404 not found - 404.html
-        if (
-            !$return &&
-            $this->templatePath &&
-            file_exists($this->templatePath . self::NOTFOUND) &&
-            is_readable($this->templatePath . self::NOTFOUND)
-        ) {
+
+        if (!$return && ($nf_template = $this->resolver->resolveNotFoundTemplate())) {
             $return = array(
                 '_controller' => $this->controller,
-                '_route' => '404.html',
-                '_template' => self::NOTFOUND,
+                '_route' => $nf_template->getRenderName(),
             );
         }
 

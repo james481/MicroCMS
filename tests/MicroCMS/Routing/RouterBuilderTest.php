@@ -16,6 +16,7 @@
 namespace MicroCMS\Routing;
 
 use Symfony\Component\Config\FileLocator;
+use MicroCMS\Template\Resolver;
 
 class RouterBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -27,7 +28,8 @@ class RouterBuilderTest extends \PHPUnit_Framework_TestCase
         // Call the RouterBuilder with no arguments,
         // and make sure we get back a Router with a default matcher.
 
-        $builder = new RouterBuilder();
+        $resolver = new Resolver();
+        $builder = new RouterBuilder($resolver);
         $router = $builder->prepareRouter();
         $this->assertInstanceOf('MicroCMS\Routing\Router', $router);
         $matchers = $this->getRouterMatchers($router);
@@ -43,7 +45,8 @@ class RouterBuilderTest extends \PHPUnit_Framework_TestCase
     {
         // Call the RouterBuilder with a valid template dir,
         // and make sure the Router get built with the template matcher.
-        $builder = new RouterBuilder(null, __DIR__ . '/Fixtures/templates/');
+        $resolver = new Resolver(__DIR__ . '/Fixtures/templates/');
+        $builder = new RouterBuilder($resolver);
         $router = $builder->prepareRouter();
 
         $this->assertInstanceOf('MicroCMS\Routing\Router', $router);
@@ -58,9 +61,10 @@ class RouterBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testIgnoresInvalidTemplateDir()
     {
-        // If we call the RouterBuilder with an invalid template directory,
+        // If we call the RouterBuilder with an empty template directory,
         // it shouldn't build the template matcher.
-        $builder = new RouterBuilder(null, __DIR__ . '/Fixtures/invalid/');
+        $resolver = new Resolver(__DIR__ . '/Fixtures/templates_empty/');
+        $builder = new RouterBuilder($resolver);
         $router = $builder->prepareRouter();
 
         $this->assertInstanceOf('MicroCMS\Routing\Router', $router);
@@ -78,7 +82,8 @@ class RouterBuilderTest extends \PHPUnit_Framework_TestCase
         // Call the RouterBuilder with a valid config locator,
         // and make sure the Symfony URL matcher is built.
         $locator = new FileLocator(__DIR__ . '/Fixtures/config/');
-        $builder = new RouterBuilder($locator, null, 'test');
+        $resolver = new Resolver();
+        $builder = new RouterBuilder($resolver, $locator, 'test');
         $router = $builder->prepareRouter();
 
         $this->assertInstanceOf('MicroCMS\Routing\Router', $router);
@@ -95,8 +100,9 @@ class RouterBuilderTest extends \PHPUnit_Framework_TestCase
     {
         // Call the RouterBuilder with an invalid config locator,
         // and make sure the Symfony URL matcher is not built.
+        $resolver = new Resolver();
         $locator = new FileLocator(__DIR__ . '/Fixtures/invalid/');
-        $builder = new RouterBuilder($locator, null, 'test');
+        $builder = new RouterBuilder($resolver, $locator, 'test');
         $router = $builder->prepareRouter();
 
         $this->assertInstanceOf('MicroCMS\Routing\Router', $router);

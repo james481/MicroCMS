@@ -17,11 +17,11 @@
 namespace MicroCMS\Routing\Matcher;
 
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use MicroCMS\Template\Resolver;
+use MicroCMS\Template\Template;
 
 class TemplateMatcher implements UrlMatcherInterface
 {
@@ -38,32 +38,29 @@ class TemplateMatcher implements UrlMatcherInterface
     protected $controller = 'MicroCMS\\Controller\\TemplateController::indexAction';
 
     /**
-     * Collection of routes
-     * @param Symfony\Component\Routing\RouteCollection $routes
+     * Template Resolver
+     * @param MicroCMS\Template\Resolver $resolver
      */
-    protected $routes;
+    protected $resolver;
 
     /**
-     * The routable templates directory
-     * @param string templatePath
+     * Prefix for template files that will not be
+     * routed automatically.
+     * @param string $unroutablePrefix = '_'
      */
-    protected $templatePath;
+    protected $unroutablePrefix = '_';
 
     /**
      * Constructor
      *
-     * @param mixed $template_path
-     * @param mixed RequestContext $context
+     * @param MicroCMS\Template\Resolver $resolver
+     * @param Symfony\Component\Routing\RequestContext $context
      * @return null
      */
-    public function __construct($template_path, RequestContext $context)
+    public function __construct(Resolver $resolver, RequestContext $context)
     {
-        $this->templatePath = $template_path;
+        $this->resolver = $resolver;
         $this->context = $context;
-        $this->routes = new RouteCollection();
-
-        // Build routes from templates
-        $this->buildRoutes();
     }
 
     /**
@@ -94,24 +91,19 @@ class TemplateMatcher implements UrlMatcherInterface
             throw new MethodNotAllowedException(array('GET', 'HEAD'));
         }
 
-        $matched_route = null;
-        foreach ($this->routes as $name => $route) {
-            // TODO Hostname / other route requirements?
-            if ($pathinfo === $route->getPath()) {
-                $matched_route = $route;
-                break;
-            }
+        $return = null;
+
+        // Resolve the template and make sure it's routable
+        $template = $this->resolver->resolveTemplate(rawurldecode($pathinfo));
+
+        if ((false !== $template) && $this->isRoutableTemplate($template)) {
+            $return = array(
+                '_controller' => $this->controller,
+                '_route' => $template->getRenderName(),
+            );
         }
 
-        if ($matched_route) {
-            $return = array_merge(
-                array(
-                    '_controller' => $this->controller,
-                    '_route' => $route->getPath(),
-                ),
-                $matched_route->getDefaults()
-            );
-
+        if ($return) {
             return($return);
         } else {
             throw new ResourceNotFoundException();
@@ -131,38 +123,20 @@ class TemplateMatcher implements UrlMatcherInterface
     }
 
     /**
-     * buildRoutes
-     * Build the collection of available routes from
-     * the templates in the templates directory.
+     * isRoutableTemplate
+     * Determine if the template from the resolver should be
+     * routed.
      *
-     * @return void
+     * @param MicroCMS\Template\Template $template
+     * @return bool $is_routable
      */
-    protected function buildRoutes()
+    protected function isRoutableTemplate(Template $template)
     {
-        if (!$this->templatePath || !is_dir($this->templatePath)) {
-            throw new \InvalidArgumentException(sprintf('Invalid template path: %s', $this->templatePath));
-        }
+        $template_file = new \SplFileInfo($template->getFilename());
 
-        $templates = new \FilesystemIterator($this->templatePath);
+        $is_routable =
+            ($this->unroutablePrefix !== substr($template_file->getBasename(), 0, strlen($this->unroutablePrefix)));
 
-        foreach ($templates as $template) {
-
-            // Is this a routable template?
-            if (
-                $template->isFile() &&
-                $template->isReadable() &&
-                ('.html' === substr($template->getFilename(),-5)) &&
-                ('_' !== substr($template->getFilename(), 0, 1))
-            ) {
-
-                // Construct routes for both 'foo.html' and 'foo'
-                $template_fullname = urlencode(strtolower($template->getFilename()));
-                $template_shortname = substr($template_fullname, 0, -5);
-                $defaults = array('_template' => $template->getFilename());
-
-                $this->routes->add($template_fullname, new Route($template_fullname, $defaults));
-                $this->routes->add($template_shortname, new Route($template_shortname, $defaults));
-            }
-        }
+        return($is_routable);
     }
 }

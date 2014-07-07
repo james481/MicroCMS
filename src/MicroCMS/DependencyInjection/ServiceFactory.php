@@ -19,7 +19,7 @@ namespace MicroCMS\DependencyInjection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use MicroCMS\DependencyInjection\Modules\MonologFactory;
 use MicroCMS\DependencyInjection\Modules\TwigFactory;
-use MicroCMS\Template\TemplateResolver;
+use MicroCMS\Template\Resolver;
 
 class ServiceFactory
 {
@@ -43,11 +43,11 @@ class ServiceFactory
      * buildTemplateResolver
      * Build the template resolver service
      *
-     * @return MicroCMS\Routing\Resolver\TemplateResolver $resolver
+     * @return MicroCMS\Template\Resolver $resolver
      */
     public static function buildTemplateResolver(ContainerInterface $container)
     {
-        $resolver = new TemplateResolver($container->getParameter('kernel.template_dir'));
+        $resolver = new Resolver($container->getParameter('kernel.template_dir'));
 
         return($resolver);
     }
