@@ -1,6 +1,0 @@
-parameters:
-    kernel.log_dir: %kernel.root_dir%/app/logs/
-    kernel.template_dir: %kernel.root_dir%/app/templates/
-    kernel.service_factory: MicroCMS\DependencyInjection\ServiceFactory
-
-services: ~

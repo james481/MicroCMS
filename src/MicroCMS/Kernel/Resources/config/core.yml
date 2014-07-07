@@ -1,0 +1,22 @@
+parameters:
+    kernel.log_dir: %kernel.root_dir%/app/logs/
+    kernel.template_dir: %kernel.root_dir%/app/templates/
+    kernel.cache_dir: %kernel.root_dir%/app/cache/
+    kernel.service_factory: MicroCMS\DependencyInjection\ServiceFactory
+
+services:
+    logger:
+        class: Monolog\Logger
+        factory_class: %kernel.service_factory%
+        factory_method: buildLogger
+        arguments: [@service_container]
+    templating:
+        class: Twig_Environment
+        factory_class: %kernel.service_factory%
+        factory_method: buildTemplating
+        arguments: [@service_container]
+    template_resolver:
+        class: MicroCMS\Routing\Resolver\TemplateResolver
+        factory_class: %kernel.service_factory%
+        factory_method: buildTemplateResolver
+        arguments: [@service_container]

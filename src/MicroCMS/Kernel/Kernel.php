@@ -34,6 +34,12 @@ class Kernel Extends AbstractKernel
     protected $configDir;
 
     /**
+     * The system (core) config directory
+     * @param string systemConfigDir
+     */
+    protected $systemConfigDir;
+
+    /**
      * getConfigDir
      * Get the global app config directory
      *
@@ -59,7 +65,7 @@ class Kernel Extends AbstractKernel
         if (null === $this->rootDir) {
             $reflector = new \ReflectionClass($this);
             $rootDir = dirname($reflector->getFileName());
-            $this->rootDir = str_replace('src/MicroCMS/Kernel', '', $rootDir);
+            $this->rootDir = str_replace('vendor/james481/micro-cms/src/MicroCMS/Kernel', '', $rootDir);
         }
 
         return($this->rootDir);
@@ -137,6 +143,27 @@ class Kernel Extends AbstractKernel
     }
 
     /**
+     * setSystemConfigDir
+     * Sets the system (core) config directory
+     * (This is typically uneeded except for tests)
+     *
+     * @param string $configDir
+     * @return self $this
+     */
+    public function setSystemConfigDir($configDir)
+    {
+        if (!is_dir($configDir)) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid System Configuration Directory: %s', $configDir)
+            );
+        }
+
+        $this->systemConfigDirectory = $configDir;
+
+        return($this);
+    }
+
+    /**
      * buildContainer
      * Build the MicroCMS specific DI container
      *
@@ -148,7 +175,8 @@ class Kernel Extends AbstractKernel
         $builder = new ContainerBuilder($this->getContainerBuilder());
 
         // Set file loader for config files
-        $config_locator = new FileLocator($this->getConfigDir());
+        $config_dirs = array($this->getSystemConfigDir(), $this->getConfigDir());
+        $config_locator = new FileLocator($config_dirs);
         $builder->setConfigLocator($config_locator);
 
         // Finish container
@@ -184,5 +212,22 @@ class Kernel Extends AbstractKernel
         $router = $builder->prepareRouter();
 
         return($router);
+    }
+
+    /**
+     * getSystemConfigDir
+     * Get the system configuration directory.
+     *
+     * @return string $systemConfigDir
+     */
+    protected function getSystemConfigDir()
+    {
+        if (null === $this->systemConfigDir) {
+            $reflector = new \ReflectionClass($this);
+            $rootDir = dirname($reflector->getFileName());
+            $this->systemConfigDir = $rootDir . '/Resources/config/';
+        }
+
+        return($this->systemConfigDir);
     }
 }

@@ -92,7 +92,7 @@ class ContainerBuilder
             'prod';
 
         // Build file names
-        $coreConfig = 'core_' . $env . '.yml';
+        $coreConfig = 'core.yml';
         $appConfig = 'app_' . $env . '.yml';
 
         $yamlLoader = new YamlFileLoader($this->container, $this->configLocator);

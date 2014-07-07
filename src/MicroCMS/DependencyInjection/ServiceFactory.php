@@ -19,7 +19,7 @@ namespace MicroCMS\DependencyInjection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use MicroCMS\DependencyInjection\Modules\MonologFactory;
 use MicroCMS\DependencyInjection\Modules\TwigFactory;
-use MicroCMS\Routing\Resolver\TemplateResolver;
+use MicroCMS\Template\TemplateResolver;
 
 class ServiceFactory
 {

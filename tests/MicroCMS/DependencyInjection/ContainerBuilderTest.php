@@ -80,21 +80,20 @@ class ContainerBuilderTest extends \PHPUnit_Framework_TestCase
 
     /**
      * testConfigFileRequired
-     * Test that a non-existant config file throws an exception,
-     * this is done by setting a bogus kernel env.
+     * Test that a non-existant config file throws an exception.
      * @expectedException MicroCMS\DependencyInjection\Exception\ConfigFileException
      */
     public function testConfigFileRequired()
     {
         // Build container
         $container = new SymContainerBuilder();
-        $container->setParameter('kernel.env', 'foo');
+        $container->setParameter('kernel.env', 'test');
 
-        // Build config locator
-        $config_dir = __DIR__ . '/../Kernel/Fixtures/app/config/';
+        // Build config locator, no config files here
+        $config_dir = __DIR__;
         $locator = new FileLocator($config_dir);
 
-        // Make sure the builder reads the config
+        // Make sure the builder throws
         $builder = new ContainerBuilder($container);
         $builder->setConfigLocator($locator);
 
