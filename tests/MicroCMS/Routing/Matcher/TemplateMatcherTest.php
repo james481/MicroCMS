@@ -33,12 +33,10 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
 
         // match will throw if it doesn't find something
         $match = $matcher->match('/test');
-        $this->assertEquals('/test', $match['_route']);
-        $this->assertEquals('test.html', $match['_template']);
+        $this->assertEquals('test.html', $match['_route']);
 
         $match = $matcher->match('/test.html');
-        $this->assertEquals('/test.html', $match['_route']);
-        $this->assertEquals('test.html', $match['_template']);
+        $this->assertEquals('test.html', $match['_route']);
     }
 
     /**
@@ -83,6 +81,7 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
         $template_dir = __DIR__ . '/../Fixtures/templates/';
         $resolver = new Resolver($template_dir);
         $context = new RequestContext();
+        $context->setMethod('POST');
 
         $matcher = new TemplateMatcher($resolver, $context);
         $matcher->match('/test');

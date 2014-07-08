@@ -23,12 +23,12 @@ class Resolver
     /**
      * The template for the root (/) page
      */
-    const INDEX_TEMPLATE = 'index.html';
+    const INDEX_TEMPLATE = '/index.html';
 
     /**
      * The template for 404 Pages
      */
-    const NOTFOUND_TEMPLATE = '_404.html';
+    const NOTFOUND_TEMPLATE = '/_404.html';
 
     /**
      * Array of already routed request strings to templates,
@@ -200,12 +200,13 @@ class Resolver
                         // the root template directory to get the template "route"
                         $template_full_path = $template_file->getPathname();
                         $template_rel_path = str_replace($path, '', $template_full_path);
+                        $template_route = '/' . $template_rel_path;
 
-                        if (!array_key_exists($template_rel_path, $this->templateIndex)) {
+                        if (!array_key_exists($template_route, $this->templateIndex)) {
                             $this->debug(sprintf('buildTemplateIndex: Routable Template %s Found at %s.', $template_rel_path, $template_full_path));
 
                             $template = new Template($template_rel_path, $template_full_path);
-                            $this->templateIndex[$template_rel_path] = $template;
+                            $this->templateIndex[$template_route] = $template;
                         }
                     }
                 }

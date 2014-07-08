@@ -34,7 +34,7 @@ class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('_controller', $match);
         $this->assertArrayHasKey('_route', $match);
-        $this->assertEquals(Resolver::INDEX_TEMPLATE, $match['_route']);
+        $this->assertEquals(Resolver::INDEX_TEMPLATE, '/' . $match['_route']);
     }
 
     /**
@@ -71,7 +71,7 @@ class DefaultMatcherTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('_controller', $match);
         $this->assertArrayHasKey('_route', $match);
-        $this->assertEquals(Resolver::NOTFOUND_TEMPLATE, $match['_route']);
+        $this->assertEquals(Resolver::NOTFOUND_TEMPLATE, '/' . $match['_route']);
     }
 
     /**
