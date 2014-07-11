@@ -21,11 +21,15 @@ class Resolver
 {
     /**
      * resolveArguments
-     * Resolve controller method arguments from the request object.
+     * Resolve controller method arguments from the request object and
+     * data from the Router.
      *
+     * @param Callable $callable
+     * @param Symfony\Component\HttpFoundation\Request $request
+     * @param Array $route_info
      * @return array $arguments
      */
-    public function resolveArguments(Callable $callable, Request $request)
+    public function resolveArguments(Callable $callable, Request $request, Array $route_info)
     {
         $arguments = array();
 
@@ -37,6 +41,8 @@ class Resolver
         foreach ($ref->getParameters() as $parameter) {
             if (array_key_exists($parameter->name, $req_attr)) {
                 $arguments[] = $req_attr[$parameter->name];
+            } elseif (array_key_exists($parameter->name, $route_info)) {
+                $arguments[] = $route_info[$parameter->name];
             } elseif ($parameter->getClass() && $parameter->getClass()->isInstance($request)) {
                 $arguments[] = $request;
             } elseif ($parameter->isDefaultValueAvailable()) {

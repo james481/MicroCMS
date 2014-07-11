@@ -90,6 +90,7 @@ class DefaultMatcher implements UrlMatcherInterface
             $return = array(
                 '_controller' => $this->controller,
                 '_route' => $index_template->getRenderName(),
+                'template' => $index_template,
             );
         }
 
@@ -99,6 +100,7 @@ class DefaultMatcher implements UrlMatcherInterface
             $return = array(
                 '_controller' => $this->controller,
                 '_route' => $nf_template->getRenderName(),
+                'template' => $nf_template,
             );
         }
 

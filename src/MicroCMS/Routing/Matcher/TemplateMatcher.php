@@ -100,6 +100,7 @@ class TemplateMatcher implements UrlMatcherInterface
             $return = array(
                 '_controller' => $this->controller,
                 '_route' => $template->getRenderName(),
+                'template' => $template,
             );
         }
 

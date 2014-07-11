@@ -104,7 +104,7 @@ class Kernel Extends AbstractKernel
             }
 
             // Build controller method arguments
-            $arguments = $resolver->resolveArguments($controller, $request);
+            $arguments = $resolver->resolveArguments($controller, $request, $req_info);
 
             // Call controller and get response
             $response = call_user_func_array($controller, $arguments);

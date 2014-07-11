@@ -15,8 +15,7 @@
 
 namespace MicroCMS\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
-use MicroCMS\Routing\Matcher\DefaultMatcher;
+use MicroCMS\Template\Template;
 
 class TemplateController extends AbstractController
 {
@@ -25,11 +24,20 @@ class TemplateController extends AbstractController
      * indexAction
      * Render a template routed by the template matcher.
      *
-     * @param Symfony\Component\HttpFoundation\Request;
+     * @param MicroCMS\Template\Template $template;
      * @return Symfony\Component\HttpFoundation\Response;
      */
-    public function indexAction(Request $request)
+    public function indexAction(Template $template)
     {
-        return($this->getResponse());
+        $templating = $this->container->get('templating');
+
+        $response = new Response(
+            $templating->render(
+                $template->getRenderName(),
+                $template->getRenderData()
+            )
+        );
+
+        return($response);
     }
 }
