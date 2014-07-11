@@ -31,7 +31,7 @@ class TemplateController extends AbstractController
     {
         $templating = $this->container->get('templating');
 
-        $response = new Response(
+        $response = $this->getResponse(
             $templating->render(
                 $template->getRenderName(),
                 $template->getRenderData()

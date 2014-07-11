@@ -63,10 +63,11 @@ abstract class AbstractController implements ContainerAwareInterface
     /**
      * getResponse
      *
+     * @param string $body
      * @return Symfony\Component\HttpFoundation\Response $response;
      */
-    public function getResponse()
+    public function getResponse($body = '')
     {
-        return(new Response());
+        return(new Response((string) $body));
     }
 }
