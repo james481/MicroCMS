@@ -36,6 +36,27 @@ class ServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * testBuildTemplateResolver
+     */
+    public function testBuildTemplateResolver()
+    {
+        // Build container
+        $container = new SymContainerBuilder();
+        $container->setParameter('kernel.env', 'test');
+        $template_dir = __DIR__ . '/../Routing/Fixtures/templates/';
+        $container->setParameter('kernel.template_dir', $template_dir);
+
+        // Build Template Resolver
+        $resolver = ServiceFactory::buildTemplateResolver($container);
+        $this->assertInstanceOf('MicroCMS\Template\Resolver', $resolver);
+
+        // Resolve a template
+        $template = $resolver->resolveTemplate('/test.html');
+        $this->assertInstanceOf('MicroCMS\Template\Template', $template);
+        $this->assertEquals('test.html', $template->getRenderName());
+    }
+
+    /**
      * testBuildTemplating
      */
     public function testBuildTemplating()

@@ -36,7 +36,7 @@ class Resolver
         // Examine the controller method with reflection and
         // build arguments
         $ref = new \ReflectionMethod($callable[0], $callable[1]);
-        $req_attr = $request->attributes->all();
+        $req_attr = $request->query->all();
 
         foreach ($ref->getParameters() as $parameter) {
             if (array_key_exists($parameter->name, $req_attr)) {
@@ -48,7 +48,7 @@ class Resolver
             } elseif ($parameter->isDefaultValueAvailable()) {
                 $arguments[] = $parameter->getDefaultValue();
             } else {
-                throw new \RuntimeException(sprintf('Controller %s::%s requires a value for parameter %s.', $callable[0], $callable[1], $parameter->name));
+                throw new \RuntimeException(sprintf('Controller %s::%s requires a value for parameter %s.', get_class($callable[0]), $callable[1], $parameter->name));
             }
         }
 

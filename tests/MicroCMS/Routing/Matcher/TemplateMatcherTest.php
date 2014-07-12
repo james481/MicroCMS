@@ -37,6 +37,12 @@ class TemplateMatcherTest extends \PHPUnit_Framework_TestCase
 
         $match = $matcher->match('/test.html');
         $this->assertEquals('test.html', $match['_route']);
+
+        $match = $matcher->match('/subdir/test');
+        $this->assertEquals('subdir/test.html', $match['_route']);
+
+        $match = $matcher->match('/subdir/test.html');
+        $this->assertEquals('subdir/test.html', $match['_route']);
     }
 
     /**

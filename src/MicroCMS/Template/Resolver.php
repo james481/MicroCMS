@@ -31,14 +31,6 @@ class Resolver
     const NOTFOUND_TEMPLATE = '/_404.html';
 
     /**
-     * Array of already routed request strings to templates,
-     * so we don't resolve the same request string multiple
-     * times.
-     * @param array $routedTemplateCache
-     */
-    protected $routedTemplateCache;
-
-    /**
      * Routable Template Index
      * @param array $templateIndex
      */
