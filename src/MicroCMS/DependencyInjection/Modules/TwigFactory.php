@@ -15,7 +15,7 @@
 
 namespace MicroCMS\DependencyInjection\Modules;
 
-use Symfony\Component\Filesystem\FileSystem;
+use Symfony\Component\Filesystem\Filesystem;
 
 class TwigFactory implements ModuleFactoryInterface
 {
@@ -66,8 +66,8 @@ class TwigFactory implements ModuleFactoryInterface
     {
         $this->checkTemplateDirectory();
 
-        // If we're not on dev, setup twig cache directory
-        $cache_dir = ('dev' !== $this->env) ? $this->getCacheDirectory() : false;
+        // If we're on production, setup twig cache directory
+        $cache_dir = ('prod' === $this->env) ? $this->getCacheDirectory() : false;
 
         // Twig FileLoader for templates
         $loader = new \Twig_Loader_Filesystem($this->templateDir);

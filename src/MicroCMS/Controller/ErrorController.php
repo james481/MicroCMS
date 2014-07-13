@@ -38,7 +38,7 @@ class ErrorController extends AbstractController
         $res->setContent(
             sprintf('Exception: %s<br>%s',
                 $exception->getMessage(),
-                $exception->getTraceAsString()
+                nl2br($exception->getTraceAsString())
             )
         );
 
