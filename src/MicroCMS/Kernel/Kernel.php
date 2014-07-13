@@ -140,7 +140,9 @@ class Kernel Extends AbstractKernel
                 $template = $this->container->get('template_resolver')->resolveErrorTemplate();
 
                 if ((false !== $template) && class_exists($template_controller)) {
-                    $callable = array(new $template_controller(), 'indexAction');
+                    $controller = new $template_controller();
+                    $controller->setContainer($this->container);
+                    $callable = array($controller, 'indexAction');
                     $response = call_user_func_array($callable, array($template));
                 } elseif (class_exists($error_controller)) {
                     $callable = array(new $error_controller(), 'errorAction');
