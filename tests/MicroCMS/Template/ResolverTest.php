@@ -59,9 +59,23 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * testResolverTemplates
+     * testResolverError
      *
      * @depends testResolverNotFound
+     */
+    public function testResolverError(Resolver $resolver)
+    {
+        $error_template = $resolver->resolveErrorTemplate();
+        $this->assertInstanceOf('MicroCMS\Template\Template', $error_template);
+        $this->assertEquals(Resolver::ERROR_TEMPLATE, '/' . $error_template->getRenderName());
+
+        return($resolver);
+    }
+
+    /**
+     * testResolverTemplates
+     *
+     * @depends testResolverError
      */
     public function testResolverTemplates(Resolver $resolver)
     {

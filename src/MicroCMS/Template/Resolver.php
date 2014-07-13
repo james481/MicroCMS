@@ -21,6 +21,11 @@ class Resolver
     use \MicroCMS\DependencyInjection\LogAwareTrait;
 
     /**
+     * The template for the application error (500) page
+     */
+    const ERROR_TEMPLATE = '/_500.html';
+
+    /**
      * The template for the root (/) page
      */
     const INDEX_TEMPLATE = '/index.html';
@@ -82,6 +87,24 @@ class Resolver
         }
 
         return($routable);
+    }
+
+    /**
+     * resolveErrorTemplate
+     * Resolve the template for application error (500),
+     * or false if not found.
+     *
+     * @return void
+     */
+    public function resolveErrorTemplate()
+    {
+        $this->buildTemplateIndex();
+
+        $template = (array_key_exists(self::ERROR_TEMPLATE, $this->templateIndex)) ?
+            $this->templateIndex[self::ERROR_TEMPLATE] :
+            false;
+
+        return($template);
     }
 
     /**

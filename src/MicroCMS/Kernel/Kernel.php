@@ -110,13 +110,62 @@ class Kernel Extends AbstractKernel
             $response = call_user_func_array($controller, $arguments);
 
             if (!$response instanceof Response) {
-                throw new Exception(sprintf('Controller %s did not return a valid Response object.', $req_info['controller']));
+                throw new Exception(sprintf('Controller %s did not return a valid Response object.', $req_info['_controller']));
             }
 
         } catch (\Exception $e) {
-            // TODO: Handle exceptions based on env (show trace, etc)
-            $response = new Response(sprintf('Request Error: %s', $e->getMessage()));
+            $response = $this->handleException($e);
         }
+
+        return($response);
+    }
+
+    /**
+     * handleException
+     *
+     * @param Exception $exception
+     * @return Symfony\Component\HttpFoundation\Response $response
+     */
+    public function handleException(\Exception $exception)
+    {
+        $response = null;
+        $template_controller = '\\MicroCMS\\Controller\\TemplateController';
+        $error_controller = '\\MicroCMS\\Controller\\ErrorController';
+
+        // If production (kernel.env = 'prod') we'll attempt
+        // to display the 500 template if it exists, otherwise
+        // we'll call the last ditch method.
+        if ('prod' === $this->container->getParameter('kernel.env')) {
+            try {
+                $template = $this->container->get('template_resolver')->resolveErrorTemplate();
+
+                if ((false !== $template) && class_exists($template_controller)) {
+                    $callable = array(new $template_controller(), 'indexAction');
+                    $response = call_user_func_array($callable, array($template));
+                } elseif (class_exists($error_controller)) {
+                    $callable = array(new $error_controller(), 'errorAction');
+                    $response = call_user_func_array($callable, array());
+                }
+            } catch (\Exception $e) {
+                $response = null;
+            }
+        } else {
+            // Call our pretty stack trace generator for dev
+            try {
+                if (class_exists($error_controller)) {
+                    $callable = array(new $error_controller(), 'displayTraceAction');
+                    $response = call_user_func_array($callable, array($exception));
+                }
+            } catch (\Exception $e) {
+                $response = null;
+            }
+        }
+
+        if (!$response) {
+            $response = new Response('Error - 500');
+        }
+
+        $response->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
 
         return($response);
     }
