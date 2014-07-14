@@ -34,7 +34,12 @@ The framework is implemented using [PSR-2](https://github.com/php-fig/fig-standa
 
 ## Documentation
 
-The framework includes [PHPDocumentor](http://www.phpdoc.org/) compatible comments for all source files. The API documentation is not included in this package but can be built with `phpdoc` in the standard fashion.
+The framework includes [PHPDocumentor](http://www.phpdoc.org/) compatible comments for all source files. The API documentation is not included in this package but can be built with `phpdoc` in the standard fashion:
+
+```
+$ cd /Path/To/MicroCMS
+$ phpdoc -d ./src -t ./docs
+```
 
 ## Tests
 

@@ -1,6 +1,9 @@
 {
     "name": "james481/micro-cms",
     "description": "Micro cms / static site MVC framework",
+    "keywords": ["framework", "CMS"],
+    "homepage": "https://github.com/james481/MicroCMS",
+    "license": "MIT",
     "authors": [
         {
             "name": "James C Watts",
