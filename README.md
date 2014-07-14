@@ -2,9 +2,17 @@
 
 This is a lightweight and easy to use framework for the development of small CMS-like projects. It is designed for rapid prototyping of a basic application which may later be expanded onto a larger framework (Symfony). The typical use case would be a project that is very limited in initial scope, but a larger and more complex application is planned for the future.
 
+### Install
+
+The framework along with a base application directory structure can be installed using composer from the `james481/micro-cms-standard` package:
+
+```
+$ composer create-project james481/micro-cms-standard /Path/To/Project v0.1.0
+```
+
 ## MicroCMS provides the following features:
 
-## Routing
+### Routing
 
 The MicroCMS router implements a stack of request matchers, which are checked in order to match a request:
 
@@ -14,15 +22,15 @@ The MicroCMS router implements a stack of request matchers, which are checked in
 
 * __Default Matcher__ - The default matcher provides routes for the homepage and error pages. If a file named `index.html` exists in the application templates directory, it will be rendered for the site homepage (as well as `/index` and `/index.html`). In addition, the Default Matcher will render `_404.html` and `_500.html` for not found and application errors. Note that the `_500.html` template is only used in the production environment (other environments will display a stack trace for the exception / error).
 
-## DI Container
+### DI Container
 
 The framework builds a Symfony DI Container, which will be provided to any custom controllers automatically as long as they implement `ContainerAwareInterface`. The container can be customized by editing the environment specific configuration file (usually `app/config/app_{env}.yml`) and specifying custom services / factories.
 
-## Twig Templating
+### Twig Templating
 
 The DI Container includes a Twig renderer which is setup by the kernel.
 
-## Logging
+### Logging
 
 The kernel also builds a Monolog logger, which will log to environment specific log files in the application logs directory (usually `app/logs`). In addition to being used internally by the framework, a [PSR-3](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md) compatible trait (`MicroCMS\DependencyInjection\LogAwareTrait`) can also be used by custom classes for convenient logging.
 
@@ -32,7 +40,7 @@ The framework is currently at version `0.1.0`. It is functionally fairly complet
 
 The framework is implemented using [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) coding standards, and in the [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md) namespace standard.
 
-## Documentation
+### Documentation
 
 The framework includes [PHPDocumentor](http://www.phpdoc.org/) compatible comments for all source files. The API documentation is not included in this package but can be built with `phpdoc` in the standard fashion:
 
@@ -41,7 +49,7 @@ $ cd /Path/To/MicroCMS
 $ phpdoc -d ./src -t ./docs
 ```
 
-## Tests
+### Tests
 
 The framework includes unit tests for the [PHPunit](http://phpunit.de/) test framework, and can be run by:
 
@@ -51,7 +59,7 @@ $ composer install
 $ phpunit
 ```
 
-## TODO
+### TODO
 
 Version `0.2.0` will include:
 
@@ -59,10 +67,10 @@ Version `0.2.0` will include:
 
 * Basic content storage and injection into rendered templates
 
-## Author
+### Author
 
 James Watts - <jamescwatts@gmail.com>
 
-## License
+### License
 
 MicroCMS is licensed under the MIT License - see the `LICENSE` file for details
